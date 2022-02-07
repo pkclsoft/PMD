@@ -1,0 +1,5 @@
+*.DEF filter=crtext
+*.MOD filter=crtext
+*.md filter=crtext
+build filter=crtext
+fixtypes filter=crtext

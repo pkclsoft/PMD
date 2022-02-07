@@ -1,0 +1,41 @@
+* remove all of the artifacts from the last build
+*
+rm =.sym
+rm =.ref
+rm =.a
+rm =.root
+rm pmd
+
+* build the library code for creating and reading the map file.
+*
+assemble linkmap.def keep=$
+assemble linkmap.mod keep=$
+
+* build the convertmap tool, used to convert the symbol file created by
+* 'link +l' to a map that the PMD utility can use.
+*
+assemble convertmap.mod keep=$
+link convertmap linkmap keep=convertmap
+
+* build the PMD utility itself.
+* 
+assemble pmd.mod keep=$
+link pmd linkmap keep=pmd
+
+* build a simple test program that when run, creates a post mortem dump
+* so that we can test PMD.
+*
+assemble testpmd.mod keep=$
+
+* Linking with +l outputs a symbol table, which we redirect to testpmd.sym
+*
+link +l testpmd keep=$ > testpmd.sym
+
+* use the convertmap utility to convert the testpmd.sym into a map file for
+* the PMD utility.
+*
+convertmap testpmd.sym
+
+echo "You can now run testpmd to generate testpmd.sdp, a post mortem dump"
+echo "file.  After that, use the command 'pmd testpmd.sdp' to see the"
+echo "stack trace."
